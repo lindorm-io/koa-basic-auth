@@ -1,13 +1,8 @@
-import { APIError, HttpStatus, TObject, TPromise } from "@lindorm-io/global";
-import { Context } from "koa";
-import { Logger } from "@lindorm-io/winston";
-import { baseParse, getAuthorizationHeader, stringComparison } from "@lindorm-io/common";
+import { IKoaAppContext } from "@lindorm-io/koa";
 import { includes } from "lodash";
+import { APIError, HttpStatus, TPromise, baseParse, getAuthorizationHeader, stringComparison } from "@lindorm-io/core";
 
-export interface IBasicAuthContext extends Context {
-  logger: Logger;
-  metrics: TObject<number>;
-}
+export type IBasicAuthContext = IKoaAppContext
 
 export interface IBasicAuthMiddlewareOptions {
   username: string;

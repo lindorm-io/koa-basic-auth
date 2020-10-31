@@ -8,10 +8,7 @@ npm install --save @lindorm-io/koa-basic-auth
 
 ### Peer Dependencies
 This package has the following peer dependencies: 
-* [@lindorm-io/common](https://www.npmjs.com/package/@lindorm-io/common)
-* [@lindorm-io/global](https://www.npmjs.com/package/@lindorm-io/global)
-* [@lindorm-io/winston](https://www.npmjs.com/package/@lindorm-io/winston)
-* [koa](https://www.npmjs.com/package/koa)
+* [@lindorm-io/koa](https://www.npmjs.com/package/@lindorm-io/koa)
 
 ## Usage
 ```typescript

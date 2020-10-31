@@ -1,4 +1,4 @@
-import { baseHash } from "@lindorm-io/common";
+import { baseHash } from "@lindorm-io/core";
 import { basicAuthMiddleware } from "./basic-auth-middleware";
 
 describe("basic-auth-middleware.ts", () => {
