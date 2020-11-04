@@ -40,10 +40,10 @@
     "lodash": "^4.17.20"
   },
   "peerDependencies": {
-    "@lindorm-io/koa": ">=0.0.2"
+    "@lindorm-io/koa": ">=0.0.4"
   },
   "devDependencies": {
-    "@lindorm-io/koa": "^0.0.3",
+    "@lindorm-io/koa": "^0.0.4",
     "@types/jest": "^26.0.15",
     "@types/koa": "^2.11.6",
     "@types/koa-bodyparser": "^5.0.2",
