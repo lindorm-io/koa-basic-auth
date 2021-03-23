@@ -1,17 +1,10 @@
-import { IKoaAppContext } from "@lindorm-io/koa";
 import { includes } from "lodash";
-import { APIError, HttpStatus, TPromise, baseParse, getAuthorizationHeader, stringComparison } from "@lindorm-io/core";
-
-export type IBasicAuthContext = IKoaAppContext
-
-export interface IBasicAuthMiddlewareOptions {
-  username: string;
-  password: string;
-}
+import { APIError, HttpStatus, baseParse, getAuthorizationHeader, stringComparison } from "@lindorm-io/core";
+import { IBasicAuthContext, IBasicAuthMiddlewareOptions, TNext } from "../types";
 
 export const basicAuthMiddleware = (options: IBasicAuthMiddlewareOptions) => async (
   ctx: IBasicAuthContext,
-  next: TPromise<void>,
+  next: TNext,
 ): Promise<void> => {
   const start = Date.now();
 
