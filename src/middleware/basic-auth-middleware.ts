@@ -1,6 +1,7 @@
-import { includes } from "lodash";
-import { APIError, HttpStatus, baseParse, getAuthorizationHeader, stringComparison } from "@lindorm-io/core";
-import { IBasicAuthContext, IBasicAuthMiddlewareOptions, TNext } from "../types";
+import { IBasicAuthContext, IBasicAuthMiddlewareOptions, TNext } from "../typing";
+import { InvalidAuthorizationHeaderError, InvalidServerSettingsError } from "../errors";
+import { getAuthorizationHeader } from "@lindorm-io/core";
+import { getCredentials, validateCredentials } from "../utils";
 
 export const basicAuthMiddleware = (options: IBasicAuthMiddlewareOptions) => async (
   ctx: IBasicAuthContext,
@@ -8,36 +9,24 @@ export const basicAuthMiddleware = (options: IBasicAuthMiddlewareOptions) => asy
 ): Promise<void> => {
   const start = Date.now();
 
+  if (!options.clients.length) {
+    throw new InvalidServerSettingsError(options.clients);
+  }
+
   const authorization = getAuthorizationHeader(ctx.get("Authorization"));
 
+  ctx.logger.debug("Authorization Header exists", { authorization });
+
   if (authorization.type !== "Basic") {
-    throw new APIError("Invalid Authorization Header", {
-      details: "Expected header to be: Basic",
-      statusCode: HttpStatus.ClientError.BAD_REQUEST,
-    });
+    throw new InvalidAuthorizationHeaderError();
   }
 
   ctx.logger.debug("Basic Auth identified", { credentials: authorization.value });
 
-  const credentials = baseParse(authorization.value);
+  const credentials = getCredentials(authorization.value);
+  validateCredentials(credentials, options.clients);
 
-  if (!includes(credentials, ":")) {
-    throw new APIError("Malformed Basic Authorization", {
-      details: "The provided basic auth string does not contain a username and password",
-      statusCode: HttpStatus.ClientError.BAD_REQUEST,
-    });
-  }
-
-  const input = credentials.split(":");
-  const validUsername = stringComparison(input[0], options.username);
-  const validPassword = stringComparison(input[1], options.password);
-
-  if (!validUsername || !validPassword) {
-    throw new APIError("Invalid Basic Authorization", {
-      details: "The provided basic auth string does not match the expected",
-      statusCode: HttpStatus.ClientError.FORBIDDEN,
-    });
-  }
+  ctx.logger.info("Basic Auth validated", { username: credentials.username });
 
   ctx.metrics = {
     ...(ctx.metrics || {}),

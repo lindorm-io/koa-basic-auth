@@ -1,5 +1,12 @@
 import { baseHash } from "@lindorm-io/core";
 import { basicAuthMiddleware } from "./basic-auth-middleware";
+import {
+  InvalidAuthorizationHeaderError,
+  InvalidBasicAuthorizationError,
+  InvalidServerSettingsError,
+  MalformedBasicAuthorizationError,
+} from "../errors";
+import { MissingAuthorizationHeaderError } from "@lindorm-io/core";
 
 describe("basic-auth-middleware.ts", () => {
   let options: any;
@@ -8,12 +15,12 @@ describe("basic-auth-middleware.ts", () => {
 
   beforeEach(() => {
     options = {
-      username: "mock-username",
-      password: "mock-password",
+      clients: [{ username: "mock-username", password: "mock-password" }],
     };
     ctx = {
       get: jest.fn(),
       logger: {
+        info: jest.fn(),
         debug: jest.fn(),
       },
       metrics: {},
@@ -25,49 +32,40 @@ describe("basic-auth-middleware.ts", () => {
     jest.clearAllMocks();
   });
 
-  test("should successfully validate basic auth", async () => {
+  test("should successfully validate basic auth with clients", async () => {
     ctx.get = jest.fn(() => `Basic ${baseHash("mock-username:mock-password")}`);
 
     await expect(basicAuthMiddleware(options)(ctx, next)).resolves.toBe(undefined);
   });
 
+  test("should throw error when clients is empty", async () => {
+    options.clients = [];
+    ctx.get = jest.fn(() => `Basic ${baseHash("mock-username:mock-password")}`);
+
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(InvalidServerSettingsError));
+  });
+
   test("should throw error on missing authorization header", async () => {
     ctx.get = jest.fn(() => undefined);
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toStrictEqual(
-      expect.objectContaining({
-        message: "Missing Authorization Header",
-      }),
-    );
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(MissingAuthorizationHeaderError));
   });
 
   test("should throw error on missing Basic Auth", async () => {
     ctx.get = jest.fn(() => "Bearer TOKEN");
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toStrictEqual(
-      expect.objectContaining({
-        message: "Invalid Authorization Header",
-      }),
-    );
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(InvalidAuthorizationHeaderError));
   });
 
   test("should throw error on malformed basic auth formatting", async () => {
     ctx.get = jest.fn(() => `Basic ${baseHash("string-without-any-colon")}`);
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toStrictEqual(
-      expect.objectContaining({
-        message: "Malformed Basic Authorization",
-      }),
-    );
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(MalformedBasicAuthorizationError));
   });
 
   test("should throw error on wrong basic auth", async () => {
     ctx.get = jest.fn(() => `Basic ${baseHash("wrong-username:wrong-password")}`);
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toStrictEqual(
-      expect.objectContaining({
-        message: "Invalid Basic Authorization",
-      }),
-    );
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(InvalidBasicAuthorizationError));
   });
 });
