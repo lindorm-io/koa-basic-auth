@@ -1,15 +1,15 @@
-import { IBasicAuthContext, IBasicAuthMiddlewareOptions, TNext } from "../typing";
+import { DefaultState, IKoaAppContext, Middleware } from "@lindorm-io/koa";
+import { IBasicAuthMiddlewareOptions } from "../typing";
 import { InvalidAuthorizationHeaderError, InvalidServerSettingsError } from "../errors";
 import { getAuthorizationHeader } from "@lindorm-io/core";
 import { getCredentials, validateCredentials } from "../utils";
 
-export const basicAuthMiddleware = (options: IBasicAuthMiddlewareOptions) => async (
-  ctx: IBasicAuthContext,
-  next: TNext,
-): Promise<void> => {
+export const basicAuthMiddleware = (
+  options: IBasicAuthMiddlewareOptions,
+): Middleware<DefaultState, IKoaAppContext> => async (ctx, next): Promise<void> => {
   const start = Date.now();
 
-  if (!options.clients.length) {
+  if (!options.clients?.length) {
     throw new InvalidServerSettingsError(options.clients);
   }
 

@@ -3,7 +3,7 @@ import { IGetCredentialsData } from "./get-credentials";
 import { stringComparison } from "@lindorm-io/core";
 import { InvalidBasicAuthorizationError } from "../errors";
 
-const findClient = (username: string, clients: Array<IBasicAuthCredentials>) => {
+const findClient = (username: string, clients: Array<IBasicAuthCredentials>): IBasicAuthCredentials => {
   for (const client of clients) {
     if (!stringComparison(username, client.username)) continue;
     return client;
