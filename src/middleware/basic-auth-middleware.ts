@@ -1,37 +1,37 @@
-import { DefaultState, IKoaAppContext, Middleware } from "@lindorm-io/koa";
-import { IBasicAuthMiddlewareOptions } from "../typing";
+import { Credentials } from "../typing";
 import { InvalidAuthorizationHeaderError, InvalidServerSettingsError } from "../errors";
-import { getAuthorizationHeader } from "@lindorm-io/core";
+import { KoaContext, Middleware, getAuthorizationHeader } from "@lindorm-io/koa";
 import { getCredentials, validateCredentials } from "../utils";
 
-export const basicAuthMiddleware = (
-  options: IBasicAuthMiddlewareOptions,
-): Middleware<DefaultState, IKoaAppContext> => async (ctx, next): Promise<void> => {
-  const start = Date.now();
+interface Options {
+  clients: Array<Credentials>;
+}
 
-  if (!options.clients?.length) {
-    throw new InvalidServerSettingsError(options.clients);
-  }
+export const basicAuthMiddleware =
+  (options: Options): Middleware<KoaContext> =>
+  async (ctx, next): Promise<void> => {
+    const start = Date.now();
 
-  const authorization = getAuthorizationHeader(ctx.get("Authorization"));
+    if (!options.clients.length) {
+      throw new InvalidServerSettingsError(options.clients);
+    }
 
-  ctx.logger.debug("Authorization Header exists", { authorization });
+    const authorization = getAuthorizationHeader(ctx.get("Authorization"));
 
-  if (authorization.type !== "Basic") {
-    throw new InvalidAuthorizationHeaderError();
-  }
+    ctx.logger.debug("Authorization Header exists", { authorization });
 
-  ctx.logger.debug("Basic Auth identified", { credentials: authorization.value });
+    if (authorization.type !== "Basic") {
+      throw new InvalidAuthorizationHeaderError();
+    }
 
-  const credentials = getCredentials(authorization.value);
-  validateCredentials(credentials, options.clients);
+    ctx.logger.debug("Basic Auth identified", { credentials: authorization.value });
 
-  ctx.logger.info("Basic Auth validated", { username: credentials.username });
+    const credentials = getCredentials(authorization.value);
+    validateCredentials(credentials, options.clients);
 
-  ctx.metrics = {
-    ...(ctx.metrics || {}),
-    basicAuth: Date.now() - start,
+    ctx.logger.info("Basic Auth validated", { username: credentials.username });
+
+    ctx.metrics.basicAuth = Date.now() - start;
+
+    await next();
   };
-
-  await next();
-};

@@ -1,8 +1,4 @@
-export interface IBasicAuthCredentials {
+export interface Credentials {
   username: string;
   password: string;
-}
-
-export interface IBasicAuthMiddlewareOptions {
-  clients?: Array<IBasicAuthCredentials>;
 }

@@ -1,9 +1,8 @@
-import { IBasicAuthCredentials } from "../typing";
-import { IGetCredentialsData } from "./get-credentials";
-import { stringComparison } from "@lindorm-io/core";
+import { Credentials } from "../typing";
 import { InvalidBasicAuthorizationError } from "../errors";
+import { stringComparison } from "@lindorm-io/core";
 
-const findClient = (username: string, clients: Array<IBasicAuthCredentials>): IBasicAuthCredentials => {
+const findClient = (username: string, clients: Array<Credentials>): Credentials => {
   for (const client of clients) {
     if (!stringComparison(username, client.username)) continue;
     return client;
@@ -12,7 +11,7 @@ const findClient = (username: string, clients: Array<IBasicAuthCredentials>): IB
   throw new InvalidBasicAuthorizationError();
 };
 
-export const validateCredentials = (credentials: IGetCredentialsData, clients: Array<IBasicAuthCredentials>): void => {
+export const validateCredentials = (credentials: Credentials, clients: Array<Credentials>): void => {
   const client = findClient(credentials.username, clients);
 
   if (!stringComparison(client.password, credentials.password)) {

@@ -1,12 +1,12 @@
 import { baseHash } from "@lindorm-io/core";
 import { basicAuthMiddleware } from "./basic-auth-middleware";
+import { MissingAuthorizationHeaderError } from "@lindorm-io/koa";
 import {
   InvalidAuthorizationHeaderError,
   InvalidBasicAuthorizationError,
   InvalidServerSettingsError,
   MalformedBasicAuthorizationError,
 } from "../errors";
-import { MissingAuthorizationHeaderError } from "@lindorm-io/core";
 
 describe("basic-auth-middleware.ts", () => {
   let options: any;
@@ -35,7 +35,7 @@ describe("basic-auth-middleware.ts", () => {
   test("should successfully validate basic auth with clients", async () => {
     ctx.get = jest.fn(() => `Basic ${baseHash("mock-username:mock-password")}`);
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).resolves.toBe(undefined);
+    await expect(basicAuthMiddleware(options)(ctx, next)).resolves.toBeUndefined();
   });
 
   test("should throw error when clients is empty", async () => {

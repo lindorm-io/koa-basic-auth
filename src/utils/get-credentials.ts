@@ -1,13 +1,9 @@
+import { Credentials } from "../typing";
 import { MalformedBasicAuthorizationError } from "../errors";
 import { baseParse } from "@lindorm-io/core";
 import { includes } from "lodash";
 
-export interface IGetCredentialsData {
-  username: string;
-  password: string;
-}
-
-export const getCredentials = (value: string): IGetCredentialsData => {
+export const getCredentials = (value: string): Credentials => {
   const credentials = baseParse(value);
 
   if (!includes(credentials, ":")) {
