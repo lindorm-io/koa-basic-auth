@@ -1,6 +1,6 @@
 import { Credentials } from "../typing";
 import { InvalidAuthorizationHeaderError, InvalidServerSettingsError } from "../errors";
-import { KoaContext, Middleware, getAuthorizationHeader } from "@lindorm-io/koa";
+import { KoaContext, Middleware } from "@lindorm-io/koa";
 import { getCredentials, validateCredentials } from "../utils";
 
 interface Options {
@@ -16,11 +16,11 @@ export const basicAuthMiddleware =
       throw new InvalidServerSettingsError(options.clients);
     }
 
-    const authorization = getAuthorizationHeader(ctx.get("Authorization"));
+    const authorization = ctx.getAuthorization();
 
     ctx.logger.debug("Authorization Header exists", { authorization });
 
-    if (authorization.type !== "Basic") {
+    if (authorization?.type !== "Basic") {
       throw new InvalidAuthorizationHeaderError();
     }
 
