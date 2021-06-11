@@ -1,28 +1,28 @@
+import { ClientError, ServerError } from "@lindorm-io/errors";
+import { Metric } from "@lindorm-io/koa";
 import { baseHash } from "@lindorm-io/core";
 import { basicAuthMiddleware } from "./basic-auth-middleware";
 import { logger } from "../test";
-import {
-  InvalidAuthorizationHeaderError,
-  InvalidBasicAuthorizationError,
-  InvalidServerSettingsError,
-  MalformedBasicAuthorizationError,
-} from "../errors";
+
+const next = () => Promise.resolve();
 
 describe("basic-auth-middleware.ts", () => {
   let options: any;
   let ctx: any;
-  let next: any;
 
   beforeEach(() => {
     options = {
       clients: [{ username: "mock-username", password: "mock-password" }],
     };
     ctx = {
-      getAuthorization: () => undefined,
       logger,
       metrics: {},
     };
-    next = () => Promise.resolve();
+    ctx.getAuthorization = () => ({
+      type: "Basic",
+      value: baseHash("mock-username:mock-password"),
+    });
+    ctx.getMetric = (key: string) => new Metric(ctx, key);
   });
 
   afterEach(() => {
@@ -30,11 +30,6 @@ describe("basic-auth-middleware.ts", () => {
   });
 
   test("should successfully validate basic auth with clients", async () => {
-    ctx.getAuthorization = () => ({
-      type: "Basic",
-      value: baseHash("mock-username:mock-password"),
-    });
-
     await expect(basicAuthMiddleware(options)(ctx, next)).resolves.toBeUndefined();
   });
 
@@ -46,7 +41,7 @@ describe("basic-auth-middleware.ts", () => {
       value: baseHash("mock-username:mock-password"),
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(InvalidServerSettingsError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ServerError));
   });
 
   test("should throw error on missing Basic Auth", async () => {
@@ -55,7 +50,7 @@ describe("basic-auth-middleware.ts", () => {
       value: "jwt.jwt.jwt",
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(InvalidAuthorizationHeaderError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ClientError));
   });
 
   test("should throw error on malformed basic auth formatting", async () => {
@@ -64,7 +59,7 @@ describe("basic-auth-middleware.ts", () => {
       value: baseHash("string-without-any-colon"),
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(MalformedBasicAuthorizationError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ClientError));
   });
 
   test("should throw error on wrong basic auth", async () => {
@@ -73,6 +68,6 @@ describe("basic-auth-middleware.ts", () => {
       value: baseHash("wrong-username:wrong-password"),
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(InvalidBasicAuthorizationError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ClientError));
   });
 });

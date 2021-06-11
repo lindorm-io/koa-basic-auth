@@ -1,6 +1,6 @@
 import { Credentials } from "../typing";
-import { InvalidBasicAuthorizationError } from "../errors";
 import { stringComparison } from "@lindorm-io/core";
+import { ClientError } from "@lindorm-io/errors";
 
 const findClient = (username: string, clients: Array<Credentials>): Credentials => {
   for (const client of clients) {
@@ -8,13 +8,19 @@ const findClient = (username: string, clients: Array<Credentials>): Credentials 
     return client;
   }
 
-  throw new InvalidBasicAuthorizationError();
+  throw new ClientError("Invalid Authorization", {
+    description: "Invalid credentials",
+    statusCode: ClientError.StatusCode.UNAUTHORIZED,
+  });
 };
 
 export const validateCredentials = (credentials: Credentials, clients: Array<Credentials>): void => {
   const client = findClient(credentials.username, clients);
 
-  if (!stringComparison(client.password, credentials.password)) {
-    throw new InvalidBasicAuthorizationError();
-  }
+  if (stringComparison(client.password, credentials.password)) return;
+
+  throw new ClientError("Invalid Authorization", {
+    description: "Invalid credentials",
+    statusCode: ClientError.StatusCode.UNAUTHORIZED,
+  });
 };
