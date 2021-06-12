@@ -6,7 +6,7 @@ import { logger } from "../test";
 
 const next = () => Promise.resolve();
 
-describe("basic-auth-middleware.ts", () => {
+describe("basicAuthMiddleware", () => {
   let options: any;
   let ctx: any;
 
@@ -41,7 +41,7 @@ describe("basic-auth-middleware.ts", () => {
       value: baseHash("mock-username:mock-password"),
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ServerError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(ServerError);
   });
 
   test("should throw error on missing Basic Auth", async () => {
@@ -50,7 +50,7 @@ describe("basic-auth-middleware.ts", () => {
       value: "jwt.jwt.jwt",
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ClientError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(ClientError);
   });
 
   test("should throw error on malformed basic auth formatting", async () => {
@@ -59,7 +59,7 @@ describe("basic-auth-middleware.ts", () => {
       value: baseHash("string-without-any-colon"),
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ClientError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(ClientError);
   });
 
   test("should throw error on wrong basic auth", async () => {
@@ -68,6 +68,6 @@ describe("basic-auth-middleware.ts", () => {
       value: baseHash("wrong-username:wrong-password"),
     });
 
-    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(expect.any(ClientError));
+    await expect(basicAuthMiddleware(options)(ctx, next)).rejects.toThrow(ClientError);
   });
 });
