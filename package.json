@@ -41,26 +41,26 @@
     "validate": "npm run test:clear && npm run check:lint && npm run check:types && npm test"
   },
   "dependencies": {
-    "@lindorm-io/core": "^0.2.5",
-    "@lindorm-io/errors": "^0.1.6",
+    "@lindorm-io/core": "^0.2.7",
+    "@lindorm-io/errors": "^0.1.9",
     "lodash": "^4.17.21"
   },
   "peerDependencies": {
-    "@lindorm-io/koa": ">=0.2.24"
+    "@lindorm-io/koa": ">=0.3.1"
   },
   "devDependencies": {
-    "@lindorm-io/koa": "^0.2.24",
+    "@lindorm-io/koa": "^0.3.1",
     "@types/jest": "^26.0.23",
     "@types/koa": "^2.13.3",
     "@types/koa-bodyparser": "^5.0.2",
     "@types/koa-router": "^7.4.2",
     "@types/lodash": "^4.14.170",
     "@types/node": "15.6.2",
-    "@typescript-eslint/eslint-plugin": "^4.27.0",
-    "@typescript-eslint/parser": "^4.27.0",
-    "eslint": "^7.28.0",
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "eslint": "^7.29.0",
     "husky": "^6.0.0",
-    "jest": "^27.0.4",
+    "jest": "^27.0.5",
     "jest-extended": "^0.11.5",
     "koa": "^2.13.1",
     "koa-bodyparser": "^4.3.0",
